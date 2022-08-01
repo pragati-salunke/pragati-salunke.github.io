@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Add 2 buttons -->
+<button onclick="updateTotalPopulation()">Total Population</button>
+<button onclick="update(manpower_available_data)">Manpower Available</button>
+<button onclick="update(manpower_available_data)">Fit-for-Service</button>
+<button onclick="update(manpower_available_data)">Reaching Military Age</button>
+<button onclick="update(manpower_available_data)">Total Military Personnel</button>
+<button onclick="update(manpower_available_data)">Active Personnel</button>
+<button onclick="update(manpower_available_data)">Reserve Personnel</button>
+
+<!-- Create a div where the graph will take place -->
+<div id="divsvg"></div>
+
+<script>
+
+	
+	// set the dimensions and margins of the graph
+	var margin = {top: 30, right: 30, bottom: 125, left: 60},
+		width = 2000 - margin.left - margin.right,
+		height = 800 - margin.top - margin.bottom;
+	
+	// append the svg object to the body of the page
+	var svg = d3.select("#divsvg")
+	  .append("svg")
+		.attr("width", width + margin.left + margin.right)
+	     .attr("height", height + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform",
+			  "translate(" + margin.left + "," + margin.top + ")");
+
+main_data = d3.csv("https://raw.githubusercontent.com/prasertcbs/basic-dataset/master/GlobalFirePower/GlobalFirePower.csv", function(data) {
+		
+	var x = d3.scaleBand()
+		.range([ 0, width ])
+		.domain(data.map(function(d) { return d.Country; }));
+	svg.append("g")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(x))
+		.selectAll("text")
+		.attr("transform", "translate(-10,0)rotate(-45)")
+		.style("text-anchor", "end");
+
+	
+	var y = d3.scaleLinear()
+	  .domain([0, 1000000])
+	  .range([ height, 0]);
+	svg.append("g")
+	  .call(d3.axisLeft(y));
+
+
+	  var bars = svg.selectAll("rect")
+		.data(data)
+
+		console.log(height)
+		console.log(data)
+		console.log(data["Total Population"])
+		console.log(y(data["Total Population"]))
+
+	bars
+		.enter()
+		.append("rect")
+		.merge(bars)
+		.transition()
+		.duration(1000)
+		// .attr("y", function(d) { return y(d["Total Population"]); })
+		.attr("y", data.map(function(d) { return y(d["Total Population"]); }))
+		.attr("width", x.bandwidth()/2)
+		.attr("height", data.map(function(d) { return height - y(d["Total Population"]); }))
+		// .attr("height", function(d) { return height - y(d["Total Population"]); })
+	});
+
+function updateTotalPopulation(){
+	console.log("updateTotalPopulation")
+ 	main_data = d3.csv("https://raw.githubusercontent.com/prasertcbs/basic-dataset/master/GlobalFirePower/GlobalFirePower.csv", function(data) {
+	
+		var bars = svg.selectAll("rect")
+		.data(data)
+	
+	  bars
+		.enter()
+		.append("rect")
+		.merge(bars)
+		.transition()
+		.duration(1000)
+		  .attr("x", function(d) { return x(d.Country); })
+		  .attr("y", function(d) { return y(d["Total Population"]); })
+		  .attr("width", x.bandwidth())
+		  .attr("height", function(d) { return height - y(d.value); })
+		  .attr("fill", "#69b3a2")
+	});
+}
+	
+	
+	</script>
+
+
+
+//https://raw.githubusercontent.com/prasertcbs/basic-dataset/master/GlobalFirePower/GlobalFirePower.csv
